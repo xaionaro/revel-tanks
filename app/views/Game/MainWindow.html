@@ -1,0 +1,115 @@
+{{set . "title" "Home"}}
+{{template "header.html" .}}
+
+<article>
+	<section>
+		<canvas id='canvas' width="1000px" height="600px">No canvas support :(</canvas>
+	</section>
+</article>
+<hr>
+<img id='tankSprite' src="/public/img/tank.png">
+<img id='bulletSprite' src="/public/img/bullet.png">
+
+<script>
+	var socket;
+	var myId;
+	var canvas;
+	var tankSprite;
+	var bulletSprite;
+	var ctx;
+
+	function clearPlayground() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		//ctx.setTransform(1, 0, 0, 1, 0, 0);
+	}
+
+	function drawObject(obj) {
+		pos       = obj.pos;
+
+		direction = obj.direction;
+		directionAngle = Math.atan((direction.Y) / (0.0000001+direction.X));//*360 / 2/3.14159265;
+		if (direction.X < 0) { directionAngle += 3.141592654 }
+		console.log(directionAngle);
+
+		switch(obj.type) {
+			case "tank":
+				sprite = tankSprite;
+				break;
+			case "bullet":
+				sprite = bulletSprite;
+				break;
+		}
+
+		ctx.beginPath();
+		ctx.save();
+		ctx.translate(pos.X, pos.Y);
+		ctx.rotate(directionAngle);
+		ctx.drawImage(sprite, -sprite.width/2, -sprite.height/2);
+		ctx.restore();
+	}
+
+	function considerIncomingMessage(message) {
+		myId = message.playerId;
+		clearPlayground();
+		message.playground.objects.forEach(function(e){
+			drawObject(e);
+		});
+	}
+
+	function sendMsg(message) {
+		socket.send(JSON.stringify(message));
+	}
+
+	function fire() {
+		sendMsg({action:'fire'})
+	}
+	function setDirection(x, y) {
+		console.log(x, y);
+		sendMsg({action:'setDirection', args:{direction:{x: x, y: y}}})
+	}
+
+	document.onkeydown = function (e) {
+		e = e || window.event;
+		switch (e.keyCode) {
+			case 32:	// SPACE
+				fire();
+				break;
+			case 37:	// LEFT
+				setDirection(-1, 0);
+				break;
+			case 38:	// UP
+				setDirection(0, -1);
+				break;
+			case 39:	// RIGHT
+				setDirection(1, 0);
+				break;
+			case 40:	// DOWN
+				setDirection(0, 1);
+				break;
+		}
+	};
+
+	document.addEventListener("DOMContentLoaded", function(e) { 
+		canvas = document.getElementById('canvas');
+		tankSprite   = document.getElementById('tankSprite');
+		bulletSprite = document.getElementById('bulletSprite');
+		ctx = canvas.getContext("2d");
+
+		socket = new WebSocket("ws://"+window.location.host+"/websocket");
+		socket.onmessage = function(ev) {
+			message = JSON.parse(ev.data)
+			considerIncomingMessage(message);
+		};
+	});
+
+</script>
+
+<div class="container">
+  <div class="row">
+    <div class="span6">
+      {{template "flash.html" .}}
+    </div>
+  </div>
+</div>
+
+{{template "footer.html" .}}
