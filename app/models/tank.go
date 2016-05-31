@@ -1,6 +1,7 @@
 package models
 
 import (
+	"math/rand"
 	"github.com/joonazan/vec2"
 	"github.com/revel/revel"
 )
@@ -37,7 +38,7 @@ func NewTank(player *player) *tank {
 	revel.TRACE.Printf("NewTank()")
 	tank := &tank{velocity: 4}
 	tank.initMapObject(tank, player)
-	tank.SetPos(vec2.Vector{ 500, 300 })
+	tank.SetPos(vec2.Vector{ rand.Float64()*1000, rand.Float64()*600 })
 	return tank
 }
 
