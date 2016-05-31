@@ -3,11 +3,13 @@
 
 <article>
 	<section>
-		<canvas id='canvas' width="1000px" height="600px" style='border:1px #aaa dotted'>No canvas support :(</canvas>
+		<canvas id='canvas' width="1000px" height="600px" style='border:1px #555 dotted'>No canvas support :(</canvas>
 	</section>
 </article>
-<img id='tankSprite' src="/public/img/tank.png">
-<img id='bulletSprite' src="/public/img/bullet.png">
+<span id='sprites' style='display:none'>
+	<img id='tankSprite' src="/public/img/tank.png">
+	<img id='bulletSprite' src="/public/img/bullet.png">
+</span>
 
 <script>
 	var socket;
