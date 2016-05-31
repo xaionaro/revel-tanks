@@ -51,8 +51,10 @@ func (player *player) GetTank() *tank {
 }
 
 func (player *player) DestroyTank() {
-	player.tank.Destroy()
-	player.tank = nil
+	if (player.tank != nil) {
+		player.tank.Destroy()
+		player.tank = nil
+	}
 }
 
 func (player *player) Destroy() {
@@ -73,6 +75,7 @@ func (player *player) Notify(message map[string]interface{}) {
 	_,err = player.websocket.Write(marshalized)
 	if (err != nil) {
 		revel.ERROR.Printf("player.Notify(): Cannot send message \"%v\": %v", message, err.Error())
+		player.Destroy()
 	}
 }
 
