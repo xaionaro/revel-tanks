@@ -53,7 +53,7 @@ func (tank *tank) OutBoundary() {
 		tank.pos.Y = 600
 	}
 	if (tank.pos.Y > 600) {
-		tank.pos.X = 0
+		tank.pos.Y = 0
 	}
 }
 
