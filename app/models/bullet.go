@@ -18,7 +18,7 @@ func (bullet *bullet) Iterate() {
 		}
 		distance := mapObject.GetPos()
 		distance.Sub(bullet.pos)
-		if (distance.Length() < 64) {
+		if (distance.Length() < 32) {
 			go mapObject.GetParent().Destroy()
 			go bullet.Destroy()
 			break
