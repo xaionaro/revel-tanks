@@ -64,13 +64,16 @@ func (player *player) Destroy() {
 }
 
 func (player *player) Notify(message map[string]interface{}) {
-	//revel.TRACE.Printf("player.Notify(%v)", message)
+
+	// Serializing the message
 
 	marshalized,err := json.Marshal(message)
 	if (err != nil) {
 		revel.ERROR.Printf("player.Notify(): Cannot marshalize message \"%v\": %v", message, err.Error())
 		return
 	}
+
+	// Sending the message
 
 	_,err = player.websocket.Write(marshalized)
 	if (err != nil) {
@@ -92,9 +95,12 @@ func (player *player) considerMessage(playerMessage playerMessage) {
 			if (player.tank == nil) {
 				player.CreateTank()
 			}
-			direction := vec2.Vector{
-					X: playerMessage.Args["direction"].(map[string]interface{})["x"].(float64),
-					Y: playerMessage.Args["direction"].(map[string]interface{})["y"].(float64),
+
+			directionData := playerMessage.Args["direction"].(map[string]interface{})
+
+			direction     := vec2.Vector{
+					X: directionData["x"].(float64),
+					Y: directionData["y"].(float64),
 				}
 			player.tank.SetDirection(direction)
 			break
@@ -106,20 +112,22 @@ func (player *player) Play() {
 
 	for {
 		var playerMessageBytes []byte
-		{
+		{	// Receiving a massage
 			err := websocket.Message.Receive(player.websocket, &playerMessageBytes)
 			if (err != nil) {
 				revel.TRACE.Printf("player.Play(): WS is closed: %v", err.Error())
 				return
 			}
 		}
-		{
+		{	// Unseriazlizing the message
 			var playerMessage playerMessage
 			err := json.Unmarshal(playerMessageBytes, &playerMessage)
 			if (err != nil) {
 				revel.TRACE.Printf("player.Play(): Cannot unmarshal the message \"%v\": %v", string(playerMessageBytes), err.Error())
 				return
 			}
+
+			// Considering the message
 			player.considerMessage(playerMessage)
 		}
 	}
